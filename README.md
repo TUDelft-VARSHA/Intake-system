@@ -5,6 +5,9 @@ This respository will house all the tools to be used for the design of the intak
 # main.py
 This is where all the tools will come together to output all required design parameters
 
+# performance.py
+This is where all performance wishes and requirements for the system live
+
 # external_conditions.py
 This is where all constants, material properties, and external input parameters live
 
