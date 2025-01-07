@@ -1,24 +1,21 @@
-def get_cavitation_properties():    # Get drag/m and cavity radius and length
-    pass
+def get_cavity_geometry():    # Get drag coefficient and cavity radius and length
+    return cavity_radius, cavity_length
 
 
-def get_supercavitating_structure_drag(cavitation_drag, submerged_span):
-    return cavitation_drag * submerged_span
+def get_supercavitating_structure_drag(cavitation_drag_coefficient, submerged_span, rho, velocity):        # Which area to use?
+    return .5 * rho * velocity**2 * cavitation_drag_coefficient * ...          
 
 
-def get_hydrofoil_lift_and_drag():
-    pass
+def get_hydrofoil_downforce_and_drag(supercavitating_structure_drag, intake_drag, submerged_span, aeriated_span, intake_location, hydrofoil_location, hose_location, foil_location, liftdrag):      # Solve for hydrofoil downforce and drag
+    hydrofoil_downforce = (supercavitating_structure_drag * (aeriated_span + 0.5 * submerged_span) + intake_drag * intake_location) / (foil_location - hose_location + liftdrag**-1 * hydrofoil_location)
+    hydrofoil_drag = hydrofoil_downforce * liftdrag**-1
+    return hydrofoil_downforce, hydrofoil_drag
 
 
-def get_hydrofoil_geometry():
-    pass
-
-
-def get_super_cavitating_structure_mass():
-    pass
-
-def get_hydofoil_mass():
-    pass
+def get_hydrofoil_span(hydrofoil_downforce, cavity_radius, chord, velocity, density):     # Solve for hydrofoil span
+    chord = chord - 1
+    downforce_span = 2 * hydrofoil_downforce / (chord * velocity**2 * density)
+    return downforce_span + cavity_radius
 
 
 if __name__ == "__main__":
