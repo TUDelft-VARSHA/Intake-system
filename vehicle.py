@@ -1,5 +1,7 @@
-def get_vehicle_mass(airplane):   # Get airplane
-    pass
+from inputs import *
+
+def get_vehicle_mass(airplane_mass, supercavitating_mass, hydofoil_mass):   # Get airplane
+    return airplane_mass + supercavitating_mass + hydofoil_mass
 
 
 def get_vehicle_downforce(vehicle_mass, hydrofoil_downforce):
