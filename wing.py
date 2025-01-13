@@ -5,25 +5,40 @@ import matplotlib.pyplot as plt
 
 
 #Wing planform variables
-AR = 6 #aspect ratio [m] #typical for small aircrafts
-b = 7 #wingspan [m] #max value based on diameter of the fuselage
-labda = 0.6 #taper ratio [m] from literature. 
-Sweep_LE = 3
-W_wing = 200 #weight of the wing
+AR = 7.8 #aspect ratio [m] #same aspect ratio as A380
+b = 7 #wingspan [m] #max value based on diameter of the fuselage A380
+labda = 0.2252 #taper ratio [m] from A380. 
+Sweep_LE = 33.5 #sweep angle [deg], same as for A380
+W_wing = 200 #weight of the wing [kg], guess number
 
-def wing(AR,b,labda,):
+def wing(AR,b,labda):
     A_wing = (b**2)/AR #wing surface area [m]
+
+    C_avg = (Cr + Ct)/2 #average chord [m]
 
     Cr = (2*A_wing)/(b*(1+labda))   #rootchord [m]
 
     Ct = labda*Cr #tipchord [m]
 
-    C_avg = (Cr + Ct)/2 #average chord [m]
-    t = Ct/Cr #taper ratio
    
-    MAC = Cr * (2/3) * (( 1 + t + (t**2) ) / ( 1 + t ))
+    MAC = Cr * (2/3) * (( 1 + labda + (labda**2) ) / ( 1 + labda ))
 
-    return A_wing, Cr, Ct, C_avg, MAC
+    return A_wing, Cr, Ct, C_avg, MAC, 
+
+A_wing, Cr, Ct, C_avg, MAC = wing(AR,b,labda)
+
+weight_boom = 2500 #weight of the boom [kg]
+height = 47 #height while scooping [m]
+rho = 1.2195 
+V = 80 #speed aircraft while sc
+q = 0.5 * rho * (V**2) #dynamic pressure
+
+def CL(q, weight_boom, A_wing,Sweep_LE):
+    Cl_1 = 1.1 * (1/q) * (weight_boom/A_wing)
+    Cl_des = Cl_1/((cos(Sweep_LE))**2)
+
+    return Cl_1, Cl_des
+
 
 
 #Fuselage variables
@@ -49,11 +64,12 @@ def tail(R_HT, A_wing, R_VT):
     S_VT = R_VT * A_wing
     return(S_HT, S_VT)
 
-
+S_HT, S_VT = tail(R_HT, A_wing, R_VT)
 
 #Determine drag of small aircraft
-V = 62 #velocity of aircraft [m/s]
+V = 76 #velocity of aircraft [m/s]
 rho = 1.225 #random number
+rho_water = 1 
 cd0 = 0.015
 e = 0.5 #oswald factor
 CL = 0.02 #random number
@@ -71,7 +87,7 @@ D_intake = 50666.66667 #intake drag [N], drag adds to total drag of A380
 D_hose = 13730.66667
 
 #Determine lift of small aircraft
-V = 62 #velocity of aircraft [m/s]
+V = 76 #velocity of aircraft [m/s]
 rho = 1.225 #random number
 CL = 0.02 #random number
 q = 0.5 * rho * (V**2) #dynamic pressure
@@ -100,11 +116,8 @@ def center_of_gravity(W_fus, W_wing, W_tail, x_fus, x_wing, x_tail):
 
 #Determine aerodynamic center locations
 
-def aerodynamic_center(x_ac_wing, x_ac_tail, S_wing, S_tail):
-    x_ac = (x_ac_wing * S_wing + x_ac_tail * S_tail) / (S_wing + S_tail)
-    return x_ac
 
-# x = aerodynamic_center(x_ac_wing, x_ac_tail, S_wing, S_tail)
+
 
 
 ###########################################################################################
@@ -113,7 +126,7 @@ x_ac = 0.25  # Example aerodynamic center location (normalized to MAC)
 MAC = 1.2  # Mean aerodynamic chord [m]
 Cm_ac = -0.02  # Moment coefficient about the aerodynamic center
 CL_Ah = 0.4  # Wing-body lift coefficient
-CL_h = 0.1  # Tail lift coefficient
+CL_h = -0.35 * S_h**(1/3)        # Tail lift coefficient
 CL_alpha_h = 4.4  # Horizontal tail lift curve slope
 CL_alpha_Ah = 5.7  # Wing-body lift curve slope
 de_da = 0.5  # Elevator effectiveness
@@ -139,9 +152,13 @@ SM = 0.05
 x_c_g = x_np - SM
 
 # R1 = S_h/S
+x_c_g = np.arange(0, L_fus)/MAC  
+R1 = []
+for i in range(0, len(x_c_g)):
+    x = ((1/(CL_alpha_h/CL_alpha_Ah)*(1 - (de_da))*((l_h)/(c_bar))*((V_h/V)**2))* x_c_g[i]) - ((x_ac - 0.05)/(CL_alpha_h/CL_alpha_Ah)*(1 - (de_da))*((l_h)/(c_bar))*((V_h/V)**2))
+    R1.append(x)
 
-R1 = ((1/(CL_alpha_h/CL_alpha_Ah)*(1 - (de_da))*((l_h)/(c_bar))*((V_h/V)**2))* x_c_g) - ((x_ac - 0.05)/(CL_alpha_h/CL_alpha_Ah)*(1 - (de_da))*((l_h)/(c_bar))*((V_h/V)**2))
-
+print(x_c_g, "R1", R1)
 # x_c_g = np.linspace(0, L_fus,100)/MAC #center of gravity range
 
 #rear limit from stability
@@ -153,11 +170,10 @@ xcg = x_ac - (Cm_ac/CL_Ah) + (CL_h/CL_Ah)*((S_h*l_h)/(S * c_bar))*((V_h/V)**2)
 
        
 xcg = np.linspace(0, L_fus, 100)     
-xcg = np.arange(0, L_fus)  
+xcg = np.arange(0, L_fus)/MAC  
 R2 = []
 for i in range(0, len(xcg)):
-    x  = (1/((CL_h/CL_Ah)*((l_h)/(c_bar))*((V_h/V)**2)))*xcg[i] + ((Cm_ac/CL_Ah) - x_ac)/ ((CL_h/CL_Ah)*((l_h)/(c_bar))*((V_h/V)**2)) 
-
+    x  = ((1/((CL_h/CL_Ah)*((l_h)/(c_bar))*((V_h/V)**2)))*xcg[i]) + ((Cm_ac/CL_Ah) - x_ac)/ ((CL_h/CL_Ah)*((l_h)/(c_bar))*((V_h/V)**2)) 
     R2.append(x)
 print(xcg, "R2", R2)
 #forward limit from control
@@ -185,6 +201,7 @@ plt.show()
 #Longer tail arm --> smaller tail area
 
 
+#create loading diagram
 
 
 
