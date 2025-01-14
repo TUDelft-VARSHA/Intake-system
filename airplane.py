@@ -69,6 +69,8 @@ def print_dimensions():
     print("cmacv: ", cmacv, "m")
     print("bv: ", bv, "m")
     print()
+    print("lh: ", lh, "m")
+    print("lv: ", lv, "m")
 
 
 def print_masses():
@@ -94,7 +96,7 @@ v = 80
 Ch = .671
 Cv = .0550
 
-lf = 7.77
+lf = 10
 
 lambda_w = .26
 sweep_w = 33.5
@@ -165,9 +167,9 @@ print("Cl: ", Cl)
 print("Cd: ", Cd)
 
 
-
 xcgw = 104654.765 / (L - 9810)
-Lh = get_Lh(L, 1000 * 9.81, xcgw, 4000 * 9.81, D_boom, lh)
+xcgw = 4.5
+Lh = get_Lh(L, Wair, xcgw, scooping_structure, D_boom, lh)
 
 Clh = get_Cl(rho, v, Lh, Sh, sweep_h)
 print("Clh: ", Clh)
@@ -175,3 +177,10 @@ print("Clh: ", Clh)
 print_dimensions()
 print_masses()
 print_forces()
+
+Lw = 46250
+Lh = -7631
+Clw = get_Cl(rho, v, Lw, Sw, sweep_w)
+Clh = get_Cl(rho, v, Lh, Sh, sweep_h)
+print("Clw: ", Clw)
+print("Clh: ", Clh)
