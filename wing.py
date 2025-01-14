@@ -21,9 +21,9 @@ def wing(AR,b,labda):
     Ct = labda*Cr #tipchord [m]
 
    
-    MAC = Cr * (2/3) * (( 1 + labda + (labda**2) ) / ( 1 + labda ))
+    cmac = Cr * (2/3) * (( 1 + labda + (labda**2) ) / ( 1 + labda ))
 
-    return A_wing, Cr, Ct, C_avg, MAC, 
+    return A_wing, Cr, Ct, C_avg, cmac
 
 A_wing, Cr, Ct, C_avg, MAC = wing(AR,b,labda)
 
@@ -36,7 +36,6 @@ q = 0.5 * rho * (V**2) #dynamic pressure
 def CL(q, weight_boom, A_wing,Sweep_LE):
     Cl_1 = 1.1 * (1/q) * (weight_boom/A_wing)
     Cl_des = Cl_1/((cos(Sweep_LE))**2)
-
     return Cl_1, Cl_des
 
 

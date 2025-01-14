@@ -10,9 +10,9 @@ from hose import *
 if __name__ == "__main__":
     # 1. Get airplane properties
 
-    airplane_drag = 10000
-    airplane_mass = 1000
-    fuselage_length = 10
+    airplane_drag = 1576
+    airplane_mass = 457
+    fuselage_length = 7.7
     cg_location = 0
 
     # 2. Get intake properties
@@ -123,5 +123,3 @@ if __name__ == "__main__":
     print("Vehicle mass: ", vehicle_mass, "kg")
     print("Vehicle downforce: ", vehicle_downforce / 1000, "kN")
     print("Vehicle drag: ", vehicle_drag / 1000, "kN")
-
-
